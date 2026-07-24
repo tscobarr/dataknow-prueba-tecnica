@@ -13,7 +13,7 @@
 | `notebooks/DataKnow_PruebaTecnica.ipynb` | Análisis completo: EDA, regresión, validación y pronóstico |
 | `artifacts/DataKnow_PruebaTecnica.html` | Notebook exportado a HTML (visible en navegador) |
 | `artifacts/resultados_analisis.md` | Knowledge base del agente |
-| `artifacts/proyeccion_costos.xlsx` | Proyección de costos 2024-2026 |
+| `artifacts/proyeccion_costos.xlsx` | Proyección de costos próximo mes con IC 95% |
 | `artifacts/arquitectura-aws.html` | Diagrama de arquitectura AWS |
 | `artifacts/arquitectura-flujo.md` | Documentación del flujo de arquitectura |
 | `agente-ia/app.py` | Agente IA (Streamlit + Bedrock + LangGraph) |
