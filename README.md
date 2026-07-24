@@ -11,11 +11,11 @@
 | Archivo | Descripción |
 |---------|-------------|
 | `notebooks/DataKnow_PruebaTecnica.ipynb` | Análisis completo: EDA, regresión, validación y pronóstico |
-| `artifacts/DataKnow_PruebaTecnica.html` | Notebook exportado a HTML (visible en navegador) |
-| `artifacts/resultados_analisis.md` | Knowledge base del agente |
-| `artifacts/proyeccion_costos.xlsx` | Proyección de costos próximo mes con IC 95% |
-| `artifacts/arquitectura-aws.html` | Diagrama de arquitectura AWS |
-| `artifacts/arquitectura-flujo.md` | Documentación del flujo de arquitectura |
+| `Resultados/DataKnow_PruebaTecnica.html` | Notebook exportado a HTML (visible en navegador) |
+| `Resultados/resultados_analisis.md` | Knowledge base del agente |
+| `Resultados/proyeccion_costos.xlsx` | Proyección de costos próximo mes con IC 95% |
+| `Resultados/arquitectura-aws.html` | Diagrama de arquitectura AWS (no trackeado en git) |
+| `Resultados/*.png` | Gráficos del análisis (no trackeados en git) |
 | `agente-ia/app.py` | Agente IA (Streamlit + Bedrock + LangGraph) |
 | `agente-ia/Dockerfile` | Contenedor para deploy en AWS |
 | `agente-ia/requirements.txt` | Dependencias del agente |
