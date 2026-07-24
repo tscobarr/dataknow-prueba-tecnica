@@ -4,3 +4,6 @@ __pycache__/
 .DS_Store
 .env
 generative-ai-demos/
+.~lock.*
+artifacts/*.png
+artifacts/arquitectura-flujo.md
