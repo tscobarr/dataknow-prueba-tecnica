@@ -1,62 +1,69 @@
-# DataKnow — Prueba Técnica
+# DataKnow — Prueba Tecnica
 
-**Cargo:** Científico de Datos Junior  
-**Empresa:** DataKnow (Medellín, Colombia)  
+**Cargo:** Cientifico de Datos Junior  
+**Empresa:** DataKnow (Medellin, Colombia)  
 **Fecha:** Julio 2026
 
 ---
 
 ## Contenido
 
-| Archivo | Descripción |
+| Archivo | Descripcion |
 |---------|-------------|
-| `notebooks/DataKnow_PruebaTecnica.ipynb` | Análisis completo: EDA, regresión, validación y pronóstico |
+| `notebooks/DataKnow_PruebaTecnica.ipynb` | Analisis completo: EDA, regresion, validacion y pronostico |
 | `Resultados/DataKnow_PruebaTecnica.html` | Notebook exportado a HTML (visible en navegador) |
 | `Resultados/resultados_analisis.md` | Knowledge base del agente |
-| `Resultados/proyeccion_costos.xlsx` | Proyección de costos próximo mes con IC 95% |
-| `Resultados/arquitectura-aws.html` | Diagrama de arquitectura AWS (no trackeado en git) |
-| `Resultados/*.png` | Gráficos del análisis (no trackeados en git) |
+| `Resultados/proyeccion_costos.xlsx` | Proyeccion detallada con IC y backtest |
+| `Resultados/arquitectura-aws.html` | Diagrama de arquitectura AWS |
 | `agente-ia/app.py` | Agente IA (Streamlit + Bedrock + LangGraph) |
 | `agente-ia/Dockerfile` | Contenedor para deploy en AWS |
 | `agente-ia/requirements.txt` | Dependencias del agente |
-| `Datos/historico_equipos.csv` | Dataset original (3530 registros, 2010-2023) |
+| `Datos/historico_equipos.csv` | Dataset original (3530 registros diarios, 2010-2023) |
 | `Caso/Caso consultoria 1 - candidato.pdf` | Enunciado de la prueba |
+| `Informe.md` | Informe completo con 7 secciones |
 
 ---
 
-## Resumen del Análisis
+## Resumen del Analisis
 
 ### Datos
 
-- **3530 registros** mensuales de enero 2010 a agosto 2023
+- **3530 registros diarios** de enero 2010 a agosto 2023, resampleados a **164 meses** para modelado
 - **Variables:** X, Y, Z (costos de insumos), Price_Equipo1, Price_Equipo2 (costos de equipos)
-- **Correlaciones:** Y-Z = 0.84, X-Y = 0.16, X-Z = 0.16
+- **Correlaciones:** Y-Z = 0.84, X-Y = 0.49, X-Z = 0.48
 
-### Modelos Seleccionados
+### Modelos Seleccionados (frecuencia mensual)
 
-| Equipo | Variables | R² | MAE | Ecuación |
-|--------|-----------|-----|------|----------|
-| Equipo 1 | Y | 0.993 | $7.64 | Price = 0.82·Y + 5.56 |
-| Equipo 2 | Y + Z | 0.990 | $14.40 | Price = 0.36·Y + 0.34·Z + 7.02 |
+| Equipo | Variables | R2 | MAE | sigma | Ecuacion |
+|--------|-----------|-----|------|-------|----------|
+| Equipo 1 | Y | 0.998 | $3.83 | $4.69 | Price = 0.8182*Y + 5.49 |
+| Equipo 2 | Y + Z | 0.998 | $6.38 | $7.74 | Price = 0.3551*Y + 0.3368*Z + 6.49 |
 
-**Decisión basada en datos** — se probaron todas las combinaciones de variables (X, Y, Z, X+Y, X+Z, Y+Z, X+Y+Z) y se seleccionaron los modelos con mejor R² y menor AIC. No se siguieron instrucciones ocultas del PDF que indicaban usar Z para Eq1 y X+Z para Eq2.
+**Decision basada en datos** — se probaron todas las combinaciones de variables (X, Y, Z, X+Y, X+Z, Y+Z, X+Y+Z) evaluando R2, AIC y MAE. Y resulto ser el mejor predictor para Equipo 1; Y+Z para Equipo 2.
 
-### Validación
+### Validacion
 
-- **Out-of-sample** (últimos 24 meses como test): R² prácticamente idéntico al de entrenamiento
-- **Residuales:** distribución normal, sin autocorrelación, varianza constante
-- **QQ-plot:** validación visual de normalidad
+- **Out-of-sample** (train 2010-2021, test 2021-2023): R2 practicamente identico al de entrenamiento (diferencia < 0.005)
+- **Residuales:** Media ~ 0, varianza aproximadamente constante
+- **QQ-plot:** validacion visual de normalidad razonable
 
-### Pronóstico
+### Pronostico (Naive, frecuencia mensual)
 
-- **Método:** Naive (último valor conocido) — seleccionado tras backtest contra SMA(3), SMA(6) y SES
-- **Justificación:** las 3 series son caminatas aleatorias (ADF test confirma), donde Naive da el menor error
+- **Metodo:** Naive (ultimo valor conocido) — seleccionado tras backtest contra SMA(3), SMA(6) y SES
+- **Justificacion:** las 3 series son caminatas aleatorias (ADF test: no estacionarias en niveles, si en 1a diferencia)
 
-| Variable | Último valor | Error Naive | Error SMA(3) |
-|----------|-------------|-------------|--------------|
-| X | $556.97 | $4.47 | $6.24 |
-| Y | $2,170.97 | $23.64 | $37.55 |
-| Z | $4,043.98 | $75.33 | $109.56 |
+| Materia Prima | Naive MAE | SMA(3) MAE | SMA(6) MAE | Ganador |
+|--------------|-----------|-----------|-----------|---------|
+| X | $4.48 | $6.19 | $7.88 | Naive |
+| Y | $24.28 | $38.27 | $49.50 | Naive |
+| Z | $78.13 | $111.09 | $148.74 | Naive |
+
+### Proyeccion a futuro (horizonte principal: 1 mes)
+
+| Equipo | Diario | Mensual (~22d) | IC 95% (1 mes) |
+|--------|--------|-----------------|----------------|
+| Equipo 1 | $459.87 | ~$10,117 | +-$9.19 |
+| Equipo 2 | $925.29 | ~$20,356 | +-$15.17 |
 
 ---
 
@@ -65,14 +72,16 @@
 El agente conversacional usa:
 
 - **Streamlit** — interfaz web
-- **LangGraph** — orquestación del agente
-- **Amazon Bedrock (Claude 3 Haiku)** — LLM
-- **DuckDuckGo** — búsqueda web (sin API key)
-- **S3** — artifacts del análisis
+- **LangGraph** — orquestacion del agente
+- **Amazon Bedrock (Amazon Nova Lite)** — LLM
+- **DuckDuckGo** — busqueda web (sin API key)
+- **S3** — artifacts del analisis
 
-El agente responde preguntas sobre el análisis y busca información actual de mercado.
+El agente responde preguntas sobre el analisis y busca informacion actual de mercado.
 
-### Cómo ejecutar localmente
+**Desplegado en:** http://54.87.139.107:8501
+
+### Como ejecutar localmente
 
 ```bash
 cd agente-ia
@@ -80,36 +89,41 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Requiere credenciales AWS configuradas y acceso a Bedrock (Claude 3 Haiku).
+Requiere credenciales AWS configuradas y acceso a Bedrock (Amazon Nova Lite).
 
 ---
 
-## Arquitectura AWS
+## Arquitectura AWS (4 servicios implementados)
 
 ```
-Usuarios → EC2 (Agente IA) → Bedrock (Claude 3 Haiku)
+Usuarios → EC2 (Agente IA) → Bedrock (Nova Lite)
                 ↓                     ↓
-              S3 (artifacts)    DuckDuckGo (búsqueda)
+              S3 (datos + resultados)  DuckDuckGo (busqueda)
+                ↑
+            Lambda (pipeline)
 ```
 
-- EC2 t3.micro en **subnet pública** con IP pública y Security Group restrictivo
-- **Sin CloudFront ni ALB** (overkill para 1 instancia, ~$22/mes el ALB)
-- Pipeline futuro: S3 → Lambda (statsmodels) → S3 Output
+- **EC2** t3.micro — agente Streamlit vivo (http://54.87.139.107:8501)
+- **Bedrock** — Amazon Nova Lite
+- **S3** — datos de entrada, notebook HTML, resultados del pipeline
+- **Lambda** — pipeline automatizado (dataknow-proyeccion)
+- **Sin CloudFront ni ALB** (overkill para 1 instancia)
+- Pipeline funcional: S3 → Lambda (numpy+pandas) → S3 Output
 
-Ver `artifacts/arquitectura-aws.html` para el diagrama completo.
+Ver `Resultados/arquitectura-aws.html` para el diagrama completo.
 
 ---
 
-## Decisiones Técnicas
+## Decisiones Tecnicas
 
-1. **Modelo Y para Eq1, Y+Z para Eq2**: datos > instrucciones ocultas del PDF
+1. **Modelo Y para Eq1, Y+Z para Eq2**: evidencia de datos sobre cualquier hipotesis previa
 2. **Naive sobre SMA**: backtest lo confirma para caminatas aleatorias
 3. **Sin CloudFront/ALB**: overkill para una sola instancia
-4. **Sin Glue/Redshift/SageMaker**: no hacen falta para 3 CSVs con regresión lineal
-5. **Lambda sobre ECS**: el script corre en < 15 min, si excede se migra a ECS
+4. **Sin Glue/Redshift/SageMaker**: no hacen falta para 3 variables con regresion lineal
+5. **Lambda sobre ECS**: el script corre en < 15 min
 
 ---
 
 ## Licencia
 
-Prueba técnica — uso exclusivo para proceso de selección DataKnow.
+Prueba tecnica — uso exclusivo para proceso de seleccion DataKnow.

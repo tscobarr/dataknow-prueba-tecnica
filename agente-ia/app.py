@@ -1,7 +1,7 @@
 """
 Agente IA - DataKnow
 Asistente conversacional para resultados de análisis de costos
-Basado en: Amazon Bedrock (Claude 3 Haiku) + LangGraph + Streamlit
+Basado en: Amazon Bedrock (Amazon Nova Lite) + LangGraph + Streamlit
 """
 import os
 import json
@@ -10,18 +10,18 @@ import boto3
 from langchain_aws import ChatBedrock
 from langchain_core.tools import Tool
 from langgraph.prebuilt import create_react_agent
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 # ── Config ──────────────────────────────────────────────────────────
-st.set_page_config(page_title="DataKnow - Agente IA", page_icon="📊", layout="wide")
+st.set_page_config(page_title="DataKnow - Agente IA", layout="wide")
 
 # ── Knowledge Base ──────────────────────────────────────────────────
 @st.cache_data
 def load_knowledge_base():
     paths = [
-        "../artifacts/resultados_analisis.md",
-        "artifacts/resultados_analisis.md",
-        "/app/artifacts/resultados_analisis.md",
+        "../Resultados/resultados_analisis.md",
+        "Resultados/resultados_analisis.md",
+        "/app/Resultados/resultados_analisis.md",
     ]
     for p in paths:
         if os.path.exists(p):
@@ -37,7 +37,7 @@ def get_bedrock_client():
 @st.cache_resource
 def get_llm():
     return ChatBedrock(
-        model_id="anthropic.claude-3-haiku-20240307-v1:0",
+        model_id="amazon.nova-lite-v1:0",
         client=get_bedrock_client(),
         model_kwargs={"max_tokens": 1500, "temperature": 0.3, "top_p": 0.9}
     )
@@ -65,8 +65,10 @@ tools = [
         name="buscar_en_internet",
         func=buscar_internet,
         description=(
-            "Útil cuando necesitas información actual sobre precios de materias primas, "
-            "tendencias del sector construcción, contexto económico o noticias del mercado."
+            "Usa esta herramienta para buscar en internet informacion actual sobre: "
+            "precios de materias primas, tendencias del sector construccion, "
+            "contexto economico, noticias del mercado. "
+            "DEBES usarla cuando la pregunta requiera informacion que no esta en el analisis."
         )
     )
 ]
@@ -83,11 +85,40 @@ CONOCIMIENTOS DEL ANÁLISIS:
 {kb}
 
 INSTRUCCIONES:
-1. Responde preguntas sobre el análisis usando la información proporcionada.
-2. Si necesitas información actual de mercado, usa buscar_en_internet.
-3. Sé preciso: menciona R², MAE, coeficientes cuando sea relevante.
-4. Responde en español de forma clara y profesional.
-5. Combina los resultados de búsqueda con el análisis cuando sea pertinente.
+1. Si la pregunta es sobre el análisis (R2, MAE, modelos, proyeccion, coeficientes, resultados), responde usando la informacion del analisis. NO uses la herramienta de busqueda para esto.
+2. Si la pregunta es sobre el mercado actual, tendencias de precios, noticias del sector, o cualquier informacion que NO este en el analisis, DEBES usar la herramienta buscar_en_internet. No digas que no tienes acceso a internet.
+3. Se preciso: menciona R2, MAE, coeficientes cuando sea relevante.
+4. Responde en espanol de forma clara y profesional.
+5. Combina los resultados de busqueda con el analisis cuando sea pertinente.
+
+CÓMO PROYECTAR COSTOS A N MESES (si preguntan):
+1. Usa los ultimos valores mensuales conocidos:
+   - Y ultimo mes: $555.33 por dia promedio
+   - Z ultimo mes: $2,142.52 por dia promedio
+2. Aplica las ecuaciones del modelo mensual (costo prom. diario):
+   - Eq1/día = 5.49 + 0.8182 * Y
+   - Eq2/día = 6.49 + 0.3551 * Y + 0.3368 * Z
+   - Resultado: Eq1 = $459.87/día, Eq2 = $925.29/día
+3. Para PRESUPUESTO TOTAL a N meses:
+   - Costo por mes = valor_diario * 22 (dias habiles aprox.)
+   - Eq1/mes = $459.87 * 22 = $10,117
+   - Eq2/mes = $925.29 * 22 = $20,356
+   - PRESUPUESTO ACUMULADO = costo_mes × N
+   - IC acumulado = 1.96 × sigma × sqrt(N) × 22
+   - sigma(Eq1) = $4.69/día, sigma(Eq2) = $7.74/día
+4. Ejemplo para 3 meses:
+   | Mes | Eq1/día | Eq2/día | Eq1/mes (~22d) | Eq2/mes (~22d) |
+   |-----|---------|---------|-----------------|-----------------|
+   | 1   | $459.87 | $925.29 | ~$10,117        | ~$20,356        |
+   | 2   | $459.87 | $925.29 | ~$10,117        | ~$20,356        |
+   | 3   | $459.87 | $925.29 | ~$10,117        | ~$20,356        |
+   PRESUPUESTO TOTAL 3 meses: Eq1 = ~$30,351 | Eq2 = ~$61,068
+   IC TOTAL 95%: Eq1 ± $1,214 | Eq2 ± $2,003
+5. Siempre muestra el IC y explica que se amplía con sqrt(meses).
+6. Si preguntan por presupuesto para una FECHA ESPECÍFICA (ej: "enero 2024"):
+   - Calcula meses desde ago/2023: enero 2024 = 5 meses
+   - Presupuesto total = costo_mes × 5
+   - IC = 1.96 × sigma × sqrt(5) × 22
 
 DIFERENCIA ENTRE MODELO Y AGENTE (si preguntan):
 - Un modelo de IA recibe datos y produce predicciones. Ej: el modelo de regresión lineal.
@@ -98,33 +129,27 @@ DIFERENCIA ENTRE MODELO Y AGENTE (si preguntan):
     return create_react_agent(
         model=llm,
         tools=tools,
-        state_modifier=system_prompt,
+        prompt=system_prompt,
     )
 
 # ── UI ──────────────────────────────────────────────────────────────
 def main():
-    st.title("📊 DataKnow - Agente de Análisis")
+    st.title("DataKnow - Agente de Analisis")
 
     with st.sidebar:
-        st.header("🔍 Acerca del análisis")
-        st.markdown("""
-        **Datos:** 3,530 registros diarios (2010–2023)
-
-        **Modelos:**
-        - Equipo 1 ~ Y → R² = 0.993, MAE = $7.64
-        - Equipo 2 ~ Y+Z → R² = 0.990, MAE = $14.40
-
-        **Pronóstico (Naive):**
-        - Eq1: $461.31 ± $18.31
-        - Eq2: $923.57 ± $33.82
-        """)
+        st.header("Acerca del analisis")
+        st.text("Datos: 3,530 registros diarios (2010-2023)\n")
+        st.text("Modelos:\n  Equipo 1 ~ Y: R2 = 0.993, MAE = $7.64\n  Equipo 2 ~ Y+Z: R2 = 0.990, MAE = $14.40\n")
+        st.text("Pronostico mensual (Naive + IC creciente):\n  Eq1: $460.67/mes +- $9.19 (1er mes)\n  Eq2: $922.44/mes +- $15.17 (1er mes)\n  El IC se amplia con sqrt(meses)")
         st.divider()
-        st.caption("💡 Preguntas sugeridas:")
-        st.caption("- ¿Cuál es el R² del modelo de Equipo 1?")
-        st.caption("- ¿Qué variables explican el Equipo 2?")
-        st.caption("- ¿Cuál es la proyección de costos?")
-        st.caption("- ¿Cómo se comporta el mercado actual de materias primas?")
+        st.caption("Preguntas sugeridas:")
+        st.caption("- Cual es el R2 del modelo de Equipo 1?")
+        st.caption("- Que variables explican el Equipo 2?")
+        st.caption("- Cual es la proyeccion de costos?")
+        st.caption("- Como se comporta el mercado actual de materias primas?")
         st.caption("- Explica la diferencia entre modelo y agente")
+        st.caption("- Proyecta costos a 3 meses para el Equipo 1")
+        st.caption("- Cual es el presupuesto para 6 meses del Equipo 2?")
 
     # Inicializar chat
     if "messages" not in st.session_state:
@@ -159,18 +184,34 @@ def main():
             with st.spinner("Analizando..."):
                 try:
                     agent = st.session_state.agent
-                    # Invoke the agent with the full conversation history
                     response = agent.invoke(
                         {"messages": [
                             *st.session_state.chat_history,
                             {"role": "user", "content": prompt}
-                        ]}
-                    )
-                    # Extract the last AI message
-                    ai_msg = response["messages"][-1].content
+                        ]})
+                    # Extract the last AI message - handle content blocks
+                    ai_response = response["messages"][-1].content
+                    import sys; print(f'DEBUG ai_response type={type(ai_response).__name__}, len={len(ai_response) if isinstance(ai_response, (list,str)) else "N/A"}', file=sys.stderr)
+                    if isinstance(ai_response, list) and len(ai_response) > 0: print(f'DEBUG first={ai_response[0]}', file=sys.stderr)
+                    if isinstance(ai_response, list):
+                        # Filter out reasoning_content, keep only text blocks
+                        import re
+                        texts = []
+                        for b in ai_response:
+                            if isinstance(b, dict) and b.get("type") == "text":
+                                t = b.get("text", "")
+                                # Strip <thinking>...</thinking> tags that Nova may include
+                                t = re.sub(r'<thinking>.*?</thinking>\s*', '', t, flags=re.DOTALL)
+                                if t.strip():
+                                    texts.append(t)
+                        ai_msg = "\n".join(texts) if texts else str(ai_response)
+                    else:
+                        ai_msg = str(ai_response)
+                    # Strip <thinking> tags from Nova before displaying
+                    ai_msg = __import__("re").sub(r"<thinking>.*?</thinking>\s*", "", ai_msg, flags=__import__("re").DOTALL).strip()
+                    if not ai_msg: ai_msg = "Sin respuesta."
                     st.markdown(ai_msg)
                     st.session_state.messages.append({"role": "assistant", "content": ai_msg})
-                    # Update stored history
                     st.session_state.chat_history = response["messages"]
                 except Exception as e:
                     error_msg = f"Error al procesar la consulta: {str(e)}"

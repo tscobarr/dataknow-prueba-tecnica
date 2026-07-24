@@ -3,11 +3,11 @@
 
 ## 1. Resumen Ejecutivo
 
-* **Registros analizados:** 3530 dias habiles
-* **Periodo:** 2010-01-04 a 2023-08-31
+* **Registros analizados:** 164 meses (resampleo de 3530 registros diarios)
+* **Periodo:** 2010-01-31 a 2023-08-31
 * **Variables:** X, Y, Z (materias primas), Equipo 1, Equipo 2
-* **Modelo Equipo 1:** Y sola - R2 = 0.9932, MAE = $7.64
-* **Modelo Equipo 2:** Y + Z - R2 = 0.9897, MAE = $14.40
+* **Modelo Equipo 1:** Y sola - R2 = 0.9983, MAE = $3.83
+* **Modelo Equipo 2:** Y + Z - R2 = 0.9979, MAE = $6.38
 * **Metodo de pronostico:** Naive (ultimo mes)
 
 ## 2. Analisis Exploratorio
@@ -16,11 +16,11 @@
 
 | Par | Correlacion |
 |-----|------------|
-| Y - Z | 0.8442 |
-| X - Y | 0.4916 |
-| X - Z | 0.4757 |
-| Y - Equipo 1 | 0.9966 |
-| Z - Equipo 2 | 0.9827 |
+| Y - Z | 0.8534 |
+| X - Y | 0.4963 |
+| X - Z | 0.4782 |
+| Y - Equipo 1 | 0.9991 |
+| Z - Equipo 2 | 0.9874 |
 
 ### Multicolinealidad
 
@@ -34,48 +34,48 @@ sus efectos individuales con los datos disponibles.
 
 | Variable | R2 Eq1 | MAE Eq1 | R2 Eq2 | MAE Eq2 |
 |----------|--------|---------|--------|---------|
-| X | 0.2739 | $70.27 | 0.2813 | $111.46 |
-| Y | 0.9932 | $7.64 | 0.8330 | $54.00 |
-| Z | 0.7124 | $47.50 | 0.9656 | $25.14 |
+| X | 0.2799 | $69.47 | 0.2861 | $110.38 |
+| Y | 0.9983 | $3.83 | 0.8494 | $51.03 |
+| Z | 0.7310 | $45.81 | 0.9749 | $21.15 |
 
 ### 3.2 Combinaciones evaluadas
 
 | Variables | R2 Eq1 | AIC Eq1 | R2 Eq2 | AIC Eq2 |
 |----------|--------|--------|--------|--------|
-| X | 0.2739 | 42309 | 0.2813 | 45115 |
-| Y | 0.9932 | 25797 | 0.8330 | 39963 |
-| Z | 0.7124 | 39040 | 0.9656 | 34381 |
-| X + Y | 0.9947 | 24932 | 0.8418 | 39774 |
-| X + Z | 0.7315 | 38798 | 0.9708 | 33815 |
-| Y + Z | 0.9933 | 25786 | 0.9897 | 30131 |
-| X + Y + Z | 0.9947 | 24934 | 0.9915 | 29448 |
+| X | 0.2799 | 1966 | 0.2861 | 2095 |
+| Y | 0.9983 | 975 | 0.8494 | 1840 |
+| Z | 0.7310 | 1804 | 0.9749 | 1546 |
+| X + Y | 0.9997 | 665 | 0.8573 | 1833 |
+| X + Z | 0.7497 | 1794 | 0.9800 | 1511 |
+| Y + Z | 0.9983 | 975 | 0.9979 | 1142 |
+| X + Y + Z | 0.9997 | 667 | 0.9997 | 795 |
 
 ## 4. Modelos Seleccionados
 
 ### Equipo 1 ~ Y
 
-* Ecuacion: Equipo1 = 5.5646 + 0.8181 * Y
-* R2: 0.9932
-* MAE: $7.64
-* Error estandar residual: $9.34
+* Ecuacion: Equipo1 = 5.4863 + 0.8182 * Y
+* R2: 0.9983
+* MAE: $3.83
+* Error estandar residual: $4.69
 
 | Variable | Coeficiente | p-value | Significancia |
 |----------|------------|---------|--------------|
-| const | 5.5646 | 0.000000 | *** |
-| Y | 0.8181 | 0.000000 | *** |
+| const | 5.4863 | 0.000430 | *** |
+| Y | 0.8182 | 0.000000 | *** |
 
 ### Equipo 2 ~ Y + Z
 
-* Ecuacion: Equipo2 = 7.0220 + 0.3552 * Y + 0.3365 * Z
-* R2: 0.9897
-* MAE: $14.40
-* Error estandar residual: $17.26
+* Ecuacion: Equipo2 = 6.4862 + 0.3551 * Y + 0.3368 * Z
+* R2: 0.9979
+* MAE: $6.38
+* Error estandar residual: $7.74
 
 | Variable | Coeficiente | p-value | Significancia |
 |----------|------------|---------|--------------|
-| const | 7.0220 | 0.000020 | *** |
-| Y | 0.3552 | 0.000000 | *** |
-| Z | 0.3365 | 0.000000 | *** |
+| const | 6.4862 | 0.0657 | * |
+| Y | 0.3551 | 0.000000 | *** |
+| Z | 0.3368 | 0.000000 | *** |
 
 ## 5. Validacion
 
@@ -83,8 +83,8 @@ sus efectos individuales con los datos disponibles.
 
 | Modelo | Media residual | Std residual | Shapiro p-value |
 |--------|---------------|-------------|----------------|
-| Eq1 ~ Y | 0.0000 | 9.34 | 0.0000 |
-| Eq2 ~ Y+Z | 0.0000 | 17.26 | 0.0000 |
+| Eq1 ~ Y | -0.0000 | 4.69 | 0.0070 |
+| Eq2 ~ Y+Z | 0.0000 | 7.74 | 0.0013 |
 
 ### Validacion fuera de muestra (ultimos 24 meses)
 
@@ -108,21 +108,21 @@ el ultimo valor conocido.
 ### Proyeccion
 
 * Periodo de referencia: 2023-07-31 a 2023-08-31
-* Naive Y = $557.08
-* Naive Z = $2135.61
+* Naive Y = $555.33
+* Naive Z = $2142.52
 
 | Equipo | Proyeccion | IC 95% Inferior | IC 95% Superior |
 |--------|-----------|-----------------|-----------------|
-| Equipo 1 | $461.31 | $443.00 | $479.62 |
-| Equipo 2 | $923.57 | $889.75 | $957.39 |
+| Equipo 1 | $459.87 | $450.68 | $469.06 |
+| Equipo 2 | $925.29 | $910.12 | $940.46 |
 
-* Ultimo precio real (2023-08-31): Equipo 1 = $451.73, Equipo 2 = $955.35
+* Ultimo precio real (2023-08-31): Equipo 1 = $461.04, Equipo 2 = $927.66
 
 ### Intervalos de confianza
 
 Se usa IC 95% = 1.96 * std residual. Asume errores aproximadamente normales.
-* Equipo 1: std residual = $9.34, IC = +/- $18.31
-* Equipo 2: std residual = $17.26, IC = +/- $33.82
+* Equipo 1: std residual = $4.69, IC = +/- $9.19
+* Equipo 2: std residual = $7.74, IC = +/- $15.17
 
 ---
 *Documento generado el Julio 2026 para prueba tecnica DataKnow*

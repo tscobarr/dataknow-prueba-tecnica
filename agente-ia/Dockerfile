@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app and artifacts
 COPY app.py .
-COPY ../artifacts ./artifacts/
+COPY ../Resultados/resultados_analisis.md ./Resultados/
 
 # Expose Streamlit port
 EXPOSE 8501
