@@ -14,13 +14,15 @@
 | `Resultados/DataKnow_PruebaTecnica.html` | Notebook exportado a HTML (visible en navegador) |
 | `Resultados/resultados_analisis.md` | Knowledge base del agente |
 | `Resultados/proyeccion_costos.xlsx` | Proyeccion detallada con IC y backtest |
-| `Resultados/arquitectura-aws.html` | Diagrama de arquitectura AWS |
+| `Resultados/Arquitectura.png` | Diagrama de arquitectura AWS |
+| `Resultados/Informe DataKnow.pdf` | Informe completo con 7 secciones y graficos (APA) |
+| `Resultados/Presentacion DataKnow.pdf` | Presentacion del proyecto |
 | `agente-ia/app.py` | Agente IA (Streamlit + Bedrock + LangGraph) |
 | `agente-ia/Dockerfile` | Contenedor para deploy en AWS |
 | `agente-ia/requirements.txt` | Dependencias del agente |
 | `Datos/historico_equipos.csv` | Dataset original (3530 registros diarios, 2010-2023) |
 | `Caso/Caso consultoria 1 - candidato.pdf` | Enunciado de la prueba |
-| `Informe.md` | Informe completo con 7 secciones |
+| `Informe.md` | Version markdown del informe (no trackeada en git) |
 
 ---
 
@@ -110,7 +112,7 @@ Usuarios → EC2 (Agente IA) → Bedrock (Nova Lite)
 - **Sin CloudFront ni ALB** (overkill para 1 instancia)
 - Pipeline funcional: S3 → Lambda (numpy+pandas) → S3 Output
 
-Ver `Resultados/arquitectura-aws.html` para el diagrama completo.
+Ver `Resultados/Arquitectura.png` para el diagrama completo.
 
 ---
 
