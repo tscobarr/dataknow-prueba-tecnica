@@ -44,19 +44,25 @@ def get_llm():
 
 # ── Tools ───────────────────────────────────────────────────────────
 def buscar_internet(query: str) -> str:
-    """Busca información actual sobre precios, tendencias y noticias del mercado."""
+    """Busca informacion actual en internet y devuelve resultados con fuentes."""
     try:
-        with DDGS() as ddgs:
-            results = list(ddgs.text(query, max_results=5))
-            if not results:
-                return "No se encontraron resultados."
-            output = []
-            for r in results:
-                title = r.get("title", "")
-                body = r.get("body", "")
-                href = r.get("href", "")
-                output.append(f"**{title}**\n{body}\nFuente: {href}")
-            return "\n\n".join(output)
+        ddgs = DDGS()
+        results = list(ddgs.text(query, max_results=5))
+        if not results:
+            # Try a more specific fallback query
+            results = list(ddgs.text(f"{query} precios 2026", max_results=5))
+        if not results:
+            return "No se encontraron resultados para esta busqueda."
+        output = []
+        for i, r in enumerate(results, 1):
+            title = r.get('title', '').strip()
+            body = r.get('body', '').strip()
+            href = r.get('href', '')
+            if title and body:
+                output.append(f"{i}. {title}")
+                output.append(f"   {body[:200]}")
+                output.append(f"   Fuente: {href}")
+        return "\n".join(output) if output else "Sin resultados."
     except Exception as e:
         return f"Error al buscar: {str(e)}"
 
@@ -86,7 +92,7 @@ CONOCIMIENTOS DEL ANÁLISIS:
 
 INSTRUCCIONES:
 1. Si la pregunta es sobre el análisis (R2, MAE, modelos, proyeccion, coeficientes, resultados), responde usando la informacion del analisis. NO uses la herramienta de busqueda para esto.
-2. Si la pregunta es sobre el mercado actual, tendencias de precios, noticias del sector, o cualquier informacion que NO este en el analisis, DEBES usar la herramienta buscar_en_internet. No digas que no tienes acceso a internet.
+2. Si la pregunta es sobre el mercado actual, tendencias de precios, noticias del sector, o cualquier informacion que NO este en el analisis, DEBES usar la herramienta buscar_en_internet. No digas que no tienes acceso a internet. Cuando busques, se especifico: si preguntan por "materias primas", busca "materiales construccion acero hierro cemento precios" o el material relevante. Incluye las fuentes de los resultados en tu respuesta.
 3. Se preciso: menciona R2, MAE, coeficientes cuando sea relevante.
 4. Responde en espanol de forma clara y profesional.
 5. Combina los resultados de busqueda con el analisis cuando sea pertinente.
@@ -146,7 +152,7 @@ def main():
         st.caption("- Cual es el R2 del modelo de Equipo 1?")
         st.caption("- Que variables explican el Equipo 2?")
         st.caption("- Cual es la proyeccion de costos?")
-        st.caption("- Como se comporta el mercado actual de materias primas?")
+        st.caption("- Como se comporta el mercado actual de materias primas? busca en internet")
         st.caption("- Explica la diferencia entre modelo y agente")
         st.caption("- Proyecta costos a 3 meses para el Equipo 1")
         st.caption("- Cual es el presupuesto para 6 meses del Equipo 2?")
