@@ -22,7 +22,7 @@
 | `agente-ia/requirements.txt` | Dependencias del agente |
 | `Datos/historico_equipos.csv` | Dataset original (3530 registros diarios, 2010-2023) |
 | `Caso/Caso consultoria 1 - candidato.pdf` | Enunciado de la prueba |
-| `Informe.md` | Version markdown del informe (no trackeada en git) |
+| `Resultados/Informe DataKnow.pdf` | Informe completo con 7 secciones y graficos (APA) |
 
 ---
 
