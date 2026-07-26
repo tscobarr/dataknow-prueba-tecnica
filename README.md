@@ -1,4 +1,4 @@
-# DataKnow — Prueba Tecnica
+# DataKnow - Prueba Tecnica
 
 **Cargo:** Cientifico de Datos Junior  
 **Empresa:** DataKnow (Medellin, Colombia)  
