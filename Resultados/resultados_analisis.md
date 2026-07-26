@@ -3,7 +3,7 @@
 
 ## 1. Resumen Ejecutivo
 
-* **Registros analizados:** 164 meses (resampleo de 3530 registros diarios)
+* **Registros analizados:** 164 dias habiles
 * **Periodo:** 2010-01-31 a 2023-08-31
 * **Variables:** X, Y, Z (materias primas), Equipo 1, Equipo 2
 * **Modelo Equipo 1:** Y sola - R2 = 0.9983, MAE = $3.83
@@ -73,7 +73,7 @@ sus efectos individuales con los datos disponibles.
 
 | Variable | Coeficiente | p-value | Significancia |
 |----------|------------|---------|--------------|
-| const | 6.4862 | 0.0657 | * |
+| const | 6.4862 | 0.065654 | *** |
 | Y | 0.3551 | 0.000000 | *** |
 | Z | 0.3368 | 0.000000 | *** |
 
