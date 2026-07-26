@@ -81,7 +81,7 @@ El agente conversacional usa:
 
 El agente responde preguntas sobre el analisis y busca informacion actual de mercado.
 
-**Desplegado en:** http://54.87.139.107:8501
+**Desplegado en:** http://100.59.157.21:8501
 
 ### Como ejecutar localmente
 
@@ -105,7 +105,7 @@ Usuarios → EC2 (Agente IA) → Bedrock (Nova Lite)
             Lambda (pipeline)
 ```
 
-- **EC2** t3.micro — agente Streamlit vivo (http://54.87.139.107:8501)
+- **EC2** t3.micro — agente Streamlit vivo (http://100.59.157.21:8501)
 - **Bedrock** — Amazon Nova Lite
 - **S3** — datos de entrada, notebook HTML, resultados del pipeline
 - **Lambda** — pipeline automatizado (dataknow-proyeccion)
